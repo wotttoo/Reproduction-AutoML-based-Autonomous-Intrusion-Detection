@@ -1,97 +1,182 @@
-# AutonomousCyber-AutoML-based-Autonomous-Intrusion-Detection-System
-This repository includes code for the paper ["Towards Autonomous Cybersecurity: An Intelligent AutoML Framework for Autonomous Intrusion Detection"](https://dl.acm.org/doi/10.1145/3689933.3690833) accepted to the Workshop on Autonomous Cybersecurity (AutonomousCyber 2024), ACM CCS 2024 ([Top-3 Cybersecurity Conference](http://jianying.space/conference-ranking.html)).  
+# AutoML-IDS — AutoML-based Autonomous Intrusion Detection System
 
-Authors: Li Yang (liyanghart@gmail.com) and Abdallah Shami  
+Implementation of the paper ["Towards Autonomous Cybersecurity: An Intelligent AutoML Framework for Autonomous Intrusion Detection"](https://arxiv.org/pdf/2409.03141) (AutonomousCyber '24, ACM CCS 2024).
 
-Organizations: 
-- The Advanced Networking Technology and Security (ANTS) Lab, Faculty of Business and IT, Ontario Tech University
-- The Optimized Computing and Communications (OC2) Lab, ECE Department, Western University
+**Authors:** Li Yang · Abdallah Shami  
+**Organizations:** ANTS Lab (Ontario Tech) · OC2 Lab (Western University)
 
-The paper is publicly available on ArXiv: ["Towards Autonomous Cybersecurity: An Intelligent AutoML Framework for Autonomous Intrusion Detection"](https://arxiv.org/pdf/2409.03141)
-
-In this work, we propose a novel and comprehensive AutoML framework that enables fully autonomous intrusion detection in next-generation networks, holding the potential to achieve fully autonomous cybersecurity. To achieve autonomous intrusion detection, the proposed AutoML framework automates all critical procedures of the data analytics pipeline, including data pre-processing, feature engineering, model selection, hyperparameter tuning, and model ensemble. 
-
-If you are interested in AutoML and autonomous intrusion detection, below are two other comprehensive GitHub repositories:  
-1. [AutoML-Implementation-for-Static-and-Dynamic-Data-Analytics](https://github.com/Western-OC2-Lab/AutoML-Implementation-for-Static-and-Dynamic-Data-Analytics)  
-2. [AutoML-and-Adversarial-Attack-Defense-for-Zero-Touch-Network-Security](https://github.com/Western-OC2-Lab/AutoML-and-Adversarial-Attack-Defense-for-Zero-Touch-Network-Security)  
-
-## Abstract of The Paper
-The rapid evolution of mobile networks from 5G to 6G has necessitated the development of autonomous network management systems, such as Zero-Touch Networks (ZTNs). However, the increased complexity and automation of these networks have also escalated cybersecurity risks. Existing Intrusion Detection Systems (IDSs) leveraging traditional Machine Learning (ML) techniques have shown effectiveness in mitigating these risks, but they often require extensive manual effort and expert knowledge. To address these challenges, this paper proposes an Automated Machine Learning (AutoML)-based autonomous IDS framework towards achieving autonomous cybersecurity for next-generation networks. To achieve autonomous intrusion detection, the proposed AutoML framework automates all critical procedures of the data analytics pipeline, including data pre-processing, feature engineering, model selection, hyperparameter tuning, and model ensemble. Specifically, it utilizes a Tabular Variational Auto-Encoder (TVAE) method for automated data balancing, tree-based ML models for automated feature selection and base model learning, Bayesian Optimization (BO) for hyperparameter optimization, and a novel Optimized Confidence-based Stacking Ensemble (OCSE) method for automated model ensemble. The proposed AutoML-based IDS was evaluated on two public benchmark network security datasets, CICIDS2017 and 5G-NIDD, and demonstrated improved performance compared to state-of-the-art cybersecurity methods. This research marks a significant step towards fully autonomous cybersecurity in next-generation networks, potentially revolutionizing network security applications.
-
-<p float="left">
-  <img src="https://github.com/Western-OC2-Lab/AutonomousCyber-AutoML-based-Autonomous-Intrusion-Detection-System/blob/main/Framework.jpg" width="500" />
+<p>
+  <img src="Framework.jpg" width="540" alt="AutoML-IDS Framework"/>
 </p>
 
-## AutoML Pipeline and Procedures
-1. Automated Data Pre-Processing (focusing on data balancing)
-2. Automated Feature Engineering
-3. Automated Model Selection
-4. Hyper-Parameter Optimization
-5. Automated Model Ensemble
+---
 
-## Implementation
-### Machine Learning Algorithms  
-* Decision tree (DT)
-* Random forest (RF)
-* Extra trees (ET)
-* XGBoost  
-* LightGBM  
-* CatBoost
+## Project Structure
 
-### Data Balancing Methods
-* Tabular Variational Auto-Encoder (TVAE)
+```
+AutoML-IDS/
+├── data/
+│   ├── raw/                        # Original dataset CSVs
+│   │   ├── CICIDS2017_sample_0.02.csv
+│   │   └── 5G-NIDD_0.04.csv
+│   └── processed/                  # Feature-selected CSVs (generated at runtime)
+│
+├── notebooks/
+│   ├── 01_CICIDS2017_Pipeline.ipynb   # Full pipeline on CICIDS2017
+│   └── 02_5GNIDD_Pipeline.ipynb       # Full pipeline on 5G-NIDD
+│
+├── src/                            # Reusable Python package
+│   ├── __init__.py
+│   ├── data_loader.py              # DataLoader
+│   ├── preprocessor.py             # DataPreprocessor
+│   ├── feature_selector.py         # FeatureSelector
+│   ├── data_balancer.py            # DataBalancer (TVAE)
+│   ├── model_trainer.py            # ModelTrainer (6 base models)
+│   ├── hyperopt_tuner.py           # HyperparameterTuner (BO-TPE)
+│   ├── ensemble.py                 # ModelSelector + EnsembleBuilder (OCSE)
+│   └── evaluator.py                # ModelEvaluator
+│
+├── output/
+│   ├── models/                     # Saved model artefacts
+│   ├── plots/                      # Confusion matrices, feature importance charts
+│   └── reports/                    # Text classification reports, CSV comparison
+│
+├── docs/
+│   ├── project_description.md      # Architecture and technique details
+│   └── api_reference.md            # Public API for all src classes
+│
+├── run.py                          # CLI entry point for the full pipeline
+├── requirements.txt
+├── .gitignore
+├── Framework.jpg
+├── Paper_2409.03141v1.pdf
+└── LICENSE
+```
 
-### Feature Selection Methods
-* Feature Importance Averaging
+---
 
-### Optimization/AutoML Algorithms  
-* Bayesian Optimization with Tree-structured Parzen Estimator (BO-TPE)
+## Quick Start
 
-### Ensemble Learning Algorithms  
-* Stacking
-* Confidence-based Stacking
+### 1. Install dependencies
 
-### Datasets 
-1. CICIDS2017 dataset, a popular network traffic dataset for intrusion detection problems
-   * Publicly available at: https://www.unb.ca/cic/datasets/ids-2017.html  
-   
-2. 5G-NIDD dataset, a state-of-the-art 5G network security dataset
-   * Publicly available at: https://ieee-dataport.org/documents/5g-nidd-comprehensive-network-intrusion-detection-dataset-generated-over-5g-wireless
+```bash
+pip install -r requirements.txt
+```
 
-### Code  
-* [AutonomousCyber24_Dataset_1.ipynb](https://github.com/Western-OC2-Lab/AutonomousCyber-AutoML-based-Autonomous-Intrusion-Detection-System/blob/main/AutonomousCyber24_Dataset_1.ipynb): code for the sampled CICIDS2017 dataset.  
-* [AutonomousCyber24_Dataset_2.ipynb](https://github.com/Western-OC2-Lab/AutonomousCyber-AutoML-based-Autonomous-Intrusion-Detection-System/blob/main/AutonomousCyber24_Dataset_2.ipynb): code for the sampled 5G-NIDD dataset.
-  
+### 2. Run the full pipeline (CLI)
 
-### Requirements  
-* Python 3.7+ 
-* [scikit-learn](https://scikit-learn.org/stable/)  
-* [hyperopt](https://github.com/hyperopt/hyperopt)  
-* [Xgboost](https://xgboost.readthedocs.io/en/latest/python/python_intro.html)
-* [lightgbm](https://lightgbm.readthedocs.io/en/v3.3.2/Python-Intro.html)
-* [catboost](https://xgboost.readthedocs.io/en/latest/python/python_intro.html)
-* [sdv](https://docs.sdv.dev/sdv)
+```bash
+# CICIDS2017 — all steps
+python run.py --dataset cicids2017
 
-## Contact-Info
-Please feel free to contact me for any questions or cooperation opportunities. I'd be happy to help.
-* Email: [liyanghart@gmail.com](mailto:liyanghart@gmail.com)
-* GitHub: [LiYangHart](https://github.com/LiYangHart) and [Western OC2 Lab](https://github.com/Western-OC2-Lab/)
-* LinkedIn: [Li Yang](https://www.linkedin.com/in/li-yang-phd-65a190176/)  
-* Google Scholar: [Li Yang](https://scholar.google.com.eg/citations?user=XEfM7bIAAAAJ&hl=en)
+# 5G-NIDD — skip balancing and tuning for a fast dry-run
+python run.py --dataset 5gnidd --no-balance --no-tune
+
+# Full options
+python run.py --help
+```
+
+### 3. Run interactively (Jupyter)
+
+```bash
+jupyter lab
+# Open notebooks/01_CICIDS2017_Pipeline.ipynb
+# Open notebooks/02_5GNIDD_Pipeline.ipynb
+```
+
+---
+
+## AutoML Pipeline
+
+| Step | Module | Description |
+|------|--------|-------------|
+| 1. Load | `DataLoader` | Read CSV, inspect class distribution |
+| 2. Preprocess | `DataPreprocessor` | Encode labels, fill inf/NaN, stratified split |
+| 3. Feature selection | `FeatureSelector` | Train all 6 models, average top-3 importances, 90 % threshold |
+| 4. Data balancing | `DataBalancer` | TVAE synthetic oversampling for minority classes |
+| 5. Model training | `ModelTrainer` | 3-fold CV on balanced feature-selected data |
+| 6. HPO | `HyperparameterTuner` | BO-TPE (hyperopt) per model |
+| 7. Ensemble | `EnsembleBuilder` | Traditional / Confidence / Hybrid (OCSE) stacking |
+| 8. Evaluate | `ModelEvaluator` | Metrics, confusion matrices, comparison chart |
+
+---
+
+## Base Classifiers
+
+| Key | Algorithm | Library |
+|-----|-----------|---------|
+| `dt` | Decision Tree | scikit-learn |
+| `rf` | Random Forest | scikit-learn |
+| `et` | Extra Trees | scikit-learn |
+| `xg` | XGBoost | xgboost |
+| `lgbm` | LightGBM | lightgbm |
+| `cat` | CatBoost | catboost |
+
+---
+
+## Using `src` as a library
+
+```python
+from src import (
+    DataLoader, DataPreprocessor, FeatureSelector,
+    DataBalancer, ModelTrainer, HyperparameterTuner,
+    ModelSelector, EnsembleBuilder, ModelEvaluator,
+)
+
+# Load & preprocess
+loader = DataLoader("data/raw/CICIDS2017_sample_0.02.csv")
+df     = loader.load()
+prep   = DataPreprocessor()
+df     = prep.encode_labels(df)
+df     = prep.handle_missing(df)
+X_train, X_test, y_train, y_test = prep.split(df)
+
+# Train, select features, balance, tune, ensemble …
+# See notebooks/ or docs/api_reference.md for the complete workflow.
+```
+
+---
+
+## Datasets
+
+| Dataset | Attacks | Samples (full) | Subset used |
+|---------|---------|---------------|-------------|
+| [CICIDS2017](https://www.unb.ca/cic/datasets/ids-2017.html) | DoS, PortScan, Infiltration, BruteForce, … | ~2.8 M | 2 % |
+| [5G-NIDD](https://ieee-dataport.org/documents/5g-nidd-comprehensive-network-intrusion-detection-dataset-generated-over-5g-wireless) | DDoS, Recon, Mirai, … | ~1.3 M | 4 % |
+
+---
+
+## Requirements
+
+```
+Python 3.9+
+scikit-learn, xgboost, lightgbm, catboost
+hyperopt
+sdv (≥ 1.9)
+pandas, numpy, matplotlib, seaborn
+```
+
+Install with: `pip install -r requirements.txt`
+
+---
 
 ## Citation
-If you find this repository useful in your research, please cite this article as:  
 
-L. Yang and A. Shami, “Towards Autonomous Cybersecurity: An Intelligent AutoML Framework for Autonomous Intrusion Detection,” in Proceedings of the Workshop on Autonomous Cybersecurity (AutonomousCyber ’24), 2024 ACM SIGSAC Conference on Computer and Communications Security (CCS’24), 2024, pp. 1–11. doi: 10.1145/3689933.3690833.
-
-```
+```bibtex
 @INPROCEEDINGS{3690833,
-  author={Yang, Li and Shami, Abdallah},
-  title = {Towards Autonomous Cybersecurity: An Intelligent AutoML Framework for Autonomous Intrusion Detection},
-  booktitle = {Proceedings of the Workshop on Autonomous Cybersecurity (AutonomousCyber '24), ACM Conference on Computer and Communications Security (CCS) 2024},
-  year = {2024},
-  address = {Salt Lake City, UT, USA},
-  pages = {1-11},
-  doi = {10.1145/3689933.3690833}
+  author    = {Yang, Li and Shami, Abdallah},
+  title     = {Towards Autonomous Cybersecurity: An Intelligent AutoML Framework
+               for Autonomous Intrusion Detection},
+  booktitle = {Proceedings of the Workshop on Autonomous Cybersecurity
+               (AutonomousCyber '24), ACM CCS 2024},
+  year      = {2024},
+  pages     = {1--11},
+  doi       = {10.1145/3689933.3690833}
 }
 ```
+
+---
+
+## Contact
+
+Li Yang · [liyanghart@gmail.com](mailto:liyanghart@gmail.com) · [GitHub](https://github.com/LiYangHart) · [Google Scholar](https://scholar.google.com.eg/citations?user=XEfM7bIAAAAJ&hl=en)
