@@ -57,13 +57,20 @@ AutoML-IDS/
 
 ## Quick Start
 
-### 1. Install dependencies
+### 1. Clone the repository
+
+```bash
+git clone https://github.com/wotttoo/Reproduction-AutoML-based-Autonomous-Intrusion-Detection.git
+cd Reproduction-AutoML-based-Autonomous-Intrusion-Detection
+```
+
+### 2. Install dependencies
 
 ```bash
 pip install -r requirements.txt
 ```
 
-### 2. Run the full pipeline (CLI)
+### 3. Run the full pipeline (CLI)
 
 ```bash
 # CICIDS2017 — all steps
@@ -76,7 +83,7 @@ python run.py --dataset 5gnidd --no-balance --no-tune
 python run.py --help
 ```
 
-### 3. Run interactively (Jupyter)
+### 4. Run interactively (Jupyter)
 
 ```bash
 jupyter lab
