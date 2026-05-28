@@ -19,8 +19,9 @@ class ModelEvaluator:
     to the output directory.
     """
 
-    def __init__(self, output_dir: str = "output"):
+    def __init__(self, output_dir: str = "output", prefix: str = ""):
         self.output_dir = output_dir
+        self.prefix = f"{prefix}_" if prefix else ""
         os.makedirs(os.path.join(output_dir, "plots"), exist_ok=True)
         os.makedirs(os.path.join(output_dir, "reports"), exist_ok=True)
 
@@ -53,7 +54,7 @@ class ModelEvaluator:
         print(report)
 
         if save:
-            path = os.path.join(self.output_dir, "reports", f"{model_name}_report.txt")
+            path = os.path.join(self.output_dir, "reports", f"{self.prefix}{model_name}_report.txt")
             with open(path, "w") as fp:
                 fp.write(f"=== {model_name} ===\n")
                 fp.write(
@@ -89,7 +90,7 @@ class ModelEvaluator:
         ax.set_title(f"Confusion Matrix — {model_name}")
         plt.tight_layout()
         if save:
-            path = os.path.join(self.output_dir, "plots", f"{model_name}_cm.png")
+            path = os.path.join(self.output_dir, "plots", f"{self.prefix}{model_name}_cm.png")
             plt.savefig(path, dpi=150, bbox_inches="tight")
         plt.show()
 
@@ -107,7 +108,7 @@ class ModelEvaluator:
         print(df.to_string())
 
         if save:
-            df.to_csv(os.path.join(self.output_dir, "reports", "model_comparison.csv"))
+            df.to_csv(os.path.join(self.output_dir, "reports", f"{self.prefix}model_comparison.csv"))
 
         fig, ax = plt.subplots(figsize=(12, 5))
         df.plot(kind="bar", ax=ax, colormap="Set2")
@@ -120,7 +121,7 @@ class ModelEvaluator:
         plt.tight_layout()
         if save:
             plt.savefig(
-                os.path.join(self.output_dir, "plots", "model_comparison.png"),
+                os.path.join(self.output_dir, "plots", f"{self.prefix}model_comparison.png"),
                 dpi=150, bbox_inches="tight",
             )
         plt.show()
