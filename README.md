@@ -1,56 +1,48 @@
-# AutoML-IDS — AutoML-based Autonomous Intrusion Detection System
+<div align="center">
 
-> Implementation of **"Towards Autonomous Cybersecurity: An Intelligent AutoML Framework for Autonomous Intrusion Detection"**  
-> Li Yang · Abdallah Shami — *AutonomousCyber '24, ACM CCS 2024* · [Paper](https://arxiv.org/pdf/2409.03141) · [DOI](https://doi.org/10.1145/3689933.3690833)
+# AutoML-IDS
 
-<p>
-  <img src="Framework.jpg" width="700" alt="AutoML-IDS Framework Diagram"/>
-</p>
+### Autonomous Intrusion Detection System via AutoML
 
-AutoML-IDS is a **fully autonomous ML pipeline** for network intrusion detection on 5G/6G traffic. It takes a raw CSV and — with zero manual intervention — selects features, balances classes, trains and tunes six classifiers, and produces a stacking ensemble. Every artifact (models, plots, reports) is saved to `output/` with per-dataset prefixes.
+[![Python](https://img.shields.io/badge/Python-3.9%2B-blue?logo=python&logoColor=white)](https://www.python.org/)
+[![License](https://img.shields.io/github/license/wotttoo/Reproduction-AutoML-based-Autonomous-Intrusion-Detection)](LICENSE)
+[![Release](https://img.shields.io/github/v/release/wotttoo/Reproduction-AutoML-based-Autonomous-Intrusion-Detection)](https://github.com/wotttoo/Reproduction-AutoML-based-Autonomous-Intrusion-Detection/releases)
+[![Paper](https://img.shields.io/badge/Paper-ACM%20CCS%202024-red)](https://doi.org/10.1145/3689933.3690833)
+[![arXiv](https://img.shields.io/badge/arXiv-2409.03141-b31b1b)](https://arxiv.org/abs/2409.03141)
 
----
+Reproduction of **"Towards Autonomous Cybersecurity: An Intelligent AutoML Framework for Autonomous Intrusion Detection"**  
+Li Yang · Abdallah Shami — *AutonomousCyber '24, ACM CCS 2024*
 
-## Table of Contents
+<img src="Framework.jpg" width="720" alt="AutoML-IDS Framework"/>
 
-- [Overview](#overview)
-- [Results](#results)
-- [Project Structure](#project-structure)
-- [Quick Start](#quick-start)
-- [AutoML Pipeline](#automl-pipeline)
-- [Key Techniques](#key-techniques)
-- [Base Classifiers](#base-classifiers)
-- [CLI Reference](#cli-reference)
-- [Using `src` as a Library](#using-src-as-a-library)
-- [Datasets](#datasets)
-- [Output Artifacts](#output-artifacts)
-- [Requirements](#requirements)
-- [Citation](#citation)
+</div>
 
 ---
 
 ## Overview
 
-Traditional ML-based IDSs require substantial expert effort — manual feature engineering, model selection, and hyperparameter tuning. As 5G/6G networks move toward **Zero-Touch Network (ZTN)** management, security systems must match that autonomy. AutoML-IDS automates the full ML analytics pipeline:
+AutoML-IDS is a **fully autonomous machine learning pipeline** for network intrusion detection on 5G/6G traffic. Given a raw network traffic CSV, it requires **zero manual intervention** to produce a trained, evaluated, and saved ensemble classifier.
 
-```
-Raw CSV → Preprocessing → Feature Selection → Data Balancing
-       → Model Training → Hyperparameter Optimisation → Ensemble → Evaluation
-```
-
-The final model is an **OCSE (Optimised Confidence-based Stacking Ensemble)**: a LightGBM meta-learner trained on both hard predictions and class probabilities from the top-3 base classifiers.
+**Key features:**
+- End-to-end pipeline: preprocessing → feature selection → data balancing → training → hyperparameter tuning → ensemble → evaluation
+- 6 tree-based classifiers trained and ranked automatically
+- Bayesian hyperparameter optimisation (BO-TPE) per model
+- TVAE synthetic oversampling for imbalanced minority attack classes
+- OCSE stacking ensemble with LightGBM meta-learner
+- All artifacts (models, plots, reports) saved with per-dataset namespacing
 
 ---
 
 ## Results
 
-Results below are from the fast mode (`--no-balance --no-tune`) on the bundled dataset samples.
+Benchmarks on the bundled dataset samples, fast mode (`--no-balance --no-tune`).
 
-### CICIDS2017 (55 k rows · 7 classes · 38/77 features selected)
+<details open>
+<summary><strong>CICIDS2017</strong> — 55 k rows · 7 classes · 38 / 77 features selected</summary>
 
-| Model | Accuracy | Precision | Recall | F1 |
-|-------|----------|-----------|--------|----|
-| XGBoost | **99.76%** | **99.76%** | **99.76%** | **99.76%** |
+| Model | Accuracy | Precision | Recall | F1-score |
+|:------|:--------:|:---------:|:------:|:--------:|
+| **XGBoost** | **99.76%** | **99.76%** | **99.76%** | **99.76%** |
 | CatBoost | 99.73% | 99.73% | 99.73% | 99.72% |
 | Random Forest | 99.61% | 99.61% | 99.61% | 99.61% |
 | Decision Tree | 99.51% | 99.51% | 99.51% | 99.51% |
@@ -60,21 +52,26 @@ Results below are from the fast mode (`--no-balance --no-tune`) on the bundled d
 | Confidence Stacking | 99.59% | 99.59% | 99.59% | 99.59% |
 | Hybrid Stacking (OCSE) | 92.08% | 92.06% | 92.08% | 91.72% |
 
-### 5G-NIDD (48 k rows · 9 classes · 17/48 features selected)
+</details>
 
-| Model | Accuracy | Precision | Recall | F1 |
-|-------|----------|-----------|--------|----|
-| Extra Trees | **99.92%** | **99.92%** | **99.92%** | **99.92%** |
-| LightGBM | **99.92%** | **99.92%** | **99.92%** | **99.92%** |
+<details open>
+<summary><strong>5G-NIDD</strong> — 48 k rows · 9 classes · 17 / 48 features selected</summary>
+
+| Model | Accuracy | Precision | Recall | F1-score |
+|:------|:--------:|:---------:|:------:|:--------:|
+| **Extra Trees** | **99.92%** | **99.92%** | **99.92%** | **99.92%** |
+| **LightGBM** | **99.92%** | **99.92%** | **99.92%** | **99.92%** |
 | Random Forest | 99.91% | 99.91% | 99.91% | 99.91% |
 | XGBoost | 99.90% | 99.90% | 99.90% | 99.90% |
 | Decision Tree | 99.86% | 99.86% | 99.86% | 99.86% |
 | CatBoost | 99.86% | 99.87% | 99.86% | 99.86% |
 | Traditional Stacking | 99.88% | 99.88% | 99.88% | 99.88% |
-| Confidence Stacking | 98.18% | 98.31% | 98.18% | 98.12% |
 | Hybrid Stacking (OCSE) | 98.50% | 98.66% | 98.50% | 98.44% |
+| Confidence Stacking | 98.18% | 98.31% | 98.18% | 98.12% |
 
-> Full pipeline results (with TVAE balancing + BO-TPE tuning) are expected to further improve recall on minority attack classes.
+</details>
+
+> Running the full pipeline (`--balance --tune`) is expected to further improve recall on minority attack classes via TVAE oversampling and BO-TPE tuning.
 
 ---
 
@@ -82,169 +79,121 @@ Results below are from the fast mode (`--no-balance --no-tune`) on the bundled d
 
 ```
 AutoML-IDS/
-│
 ├── data/
 │   ├── raw/
-│   │   ├── CICIDS2017_sample_0.02.csv    # 2% stratified sample (~55 k rows)
-│   │   └── 5G-NIDD_0.04.csv             # 4% stratified sample (~48 k rows)
-│   └── processed/                        # Feature-selected CSVs (auto-generated)
+│   │   ├── CICIDS2017_sample_0.02.csv   # 2% stratified sample (~55 k rows)
+│   │   └── 5G-NIDD_0.04.csv            # 4% stratified sample (~48 k rows)
+│   └── processed/                       # Feature-selected CSVs (auto-generated)
 │
 ├── notebooks/
-│   ├── 01_CICIDS2017_Pipeline.ipynb      # Interactive pipeline — CICIDS2017
-│   └── 02_5GNIDD_Pipeline.ipynb          # Interactive pipeline — 5G-NIDD
+│   ├── 01_CICIDS2017_Pipeline.ipynb     # Interactive pipeline — CICIDS2017
+│   └── 02_5GNIDD_Pipeline.ipynb         # Interactive pipeline — 5G-NIDD
 │
-├── src/                                  # Importable Python package
-│   ├── __init__.py                       # Re-exports all public classes
-│   ├── data_loader.py                    # DataLoader
-│   ├── preprocessor.py                   # DataPreprocessor
-│   ├── feature_selector.py               # FeatureSelector
-│   ├── data_balancer.py                  # DataBalancer (TVAE)
-│   ├── model_trainer.py                  # ModelTrainer (6 base models, 3-fold CV)
-│   ├── hyperopt_tuner.py                 # HyperparameterTuner (BO-TPE)
-│   ├── ensemble.py                       # ModelSelector + EnsembleBuilder (OCSE)
-│   └── evaluator.py                      # ModelEvaluator
+├── src/                                 # Reusable Python package
+│   ├── data_loader.py                   # DataLoader
+│   ├── preprocessor.py                  # DataPreprocessor
+│   ├── feature_selector.py              # FeatureSelector
+│   ├── data_balancer.py                 # DataBalancer (TVAE)
+│   ├── model_trainer.py                 # ModelTrainer
+│   ├── hyperopt_tuner.py                # HyperparameterTuner (BO-TPE)
+│   ├── ensemble.py                      # ModelSelector + EnsembleBuilder (OCSE)
+│   └── evaluator.py                     # ModelEvaluator
 │
-├── output/                               # All pipeline artifacts (git-ignored)
-│   ├── models/                           # <dataset>_<model>.pkl  (base + ensemble)
-│   ├── plots/                            # <dataset>_<model>_cm.png, feature_importance, comparison
-│   └── reports/                          # <dataset>_<model>_report.txt, model_comparison.csv
+├── output/                              # Generated artifacts (git-ignored)
+│   ├── models/                          # Serialised models (.pkl)
+│   ├── plots/                           # Confusion matrices, charts
+│   └── reports/                         # Classification reports, CSVs
 │
 ├── docs/
-│   ├── project_description.md            # Architecture & technique details
-│   └── api_reference.md                  # Full public API reference
+│   ├── project_description.md
+│   └── api_reference.md
 │
-├── run.py                                # CLI entry point
-├── requirements.txt                      # Python dependencies
-├── Framework.jpg                         # Pipeline diagram
-├── Paper_2409.03141v1.pdf                # Original paper (local copy)
-├── .gitignore
-└── LICENSE
+├── run.py                               # CLI entry point
+├── requirements.txt
+└── Framework.jpg
 ```
 
 ---
 
 ## Quick Start
 
-### 1. Clone
+**Requirements:** Python 3.9+ · pip
 
 ```bash
-git clone https://github.com/wotttoo/AutonomousCyber-AutoML-based-Autonomous-Intrusion-Detection-System.git
-cd AutonomousCyber-AutoML-based-Autonomous-Intrusion-Detection-System
-```
+# 1. Clone
+git clone https://github.com/wotttoo/Reproduction-AutoML-based-Autonomous-Intrusion-Detection.git
+cd Reproduction-AutoML-based-Autonomous-Intrusion-Detection
 
-### 2. Create a virtual environment (recommended)
+# 2. Create virtual environment
+python -m venv .venv && source .venv/bin/activate   # Windows: .venv\Scripts\activate
 
-```bash
-python -m venv .venv
-source .venv/bin/activate        # Linux / macOS
-# .venv\Scripts\activate         # Windows
-```
-
-### 3. Install dependencies
-
-```bash
+# 3. Install dependencies
 pip install -r requirements.txt
-```
 
-> **Python 3.9+** required. Tested on Python 3.13.
-
-### 4. Run the pipeline
-
-```bash
-# Fast mode — feature selection + training + ensemble (no TVAE, no tuning)
+# 4. Run — fast mode (feature selection + training + ensemble)
 python run.py --dataset cicids2017 --no-balance --no-tune
 
-# Full pipeline — all stages including TVAE balancing and BO-TPE tuning (~1–2 h)
+# 4. Run — full pipeline (TVAE balancing + BO-TPE tuning, ~1–2 h)
 python run.py --dataset cicids2017
-
-# Run on 5G-NIDD
-python run.py --dataset 5gnidd --no-balance --no-tune
 ```
 
 Results are saved to `output/` with `<dataset>_` prefix on all filenames.
 
-### 5. Run interactively (Jupyter)
-
+**Interactive notebooks:**
 ```bash
 jupyter lab
-# notebooks/01_CICIDS2017_Pipeline.ipynb
-# notebooks/02_5GNIDD_Pipeline.ipynb
+# → notebooks/01_CICIDS2017_Pipeline.ipynb
+# → notebooks/02_5GNIDD_Pipeline.ipynb
 ```
 
 ---
 
 ## AutoML Pipeline
 
-```
-Raw CSV
-  │
-  ▼  Step 1 — Automated Pre-processing
-     • Label encoding (LabelEncoder)
-     • inf / NaN → 0
-     • Stratified 80/20 train-test split
+| Step | Stage | Module | Description |
+|:----:|-------|--------|-------------|
+| 1 | **Pre-processing** | `preprocessor.py` | Label encoding, inf/NaN cleaning, stratified 80/20 split |
+| 2 | **Feature Selection** | `feature_selector.py` | Train all 6 classifiers; average top-3 importances; keep features up to 90% cumulative importance |
+| 3 | **Data Balancing** | `data_balancer.py` | Identify minority classes; synthesise samples with TVAE |
+| 4 | **Model Training** | `model_trainer.py` | Re-train on balanced data; 3-fold CV; rank by mean accuracy |
+| 5 | **Hyperparameter Tuning** | `hyperopt_tuner.py` | BO-TPE search; 20 evaluations per model; per-model search space |
+| 6 | **Ensemble (OCSE)** | `ensemble.py` | Traditional / Confidence / Hybrid stacking with LightGBM meta-learner |
+| 7 | **Evaluation** | `evaluator.py` | Accuracy, Precision, Recall, F1; confusion matrices; comparison chart |
 
-  ▼  Step 2 — Automated Feature Selection
-     • Train all 6 tree-based classifiers on full feature set
-     • Average feature importances from the top-3 models
-     • Greedily select the minimal subset reaching 90% cumulative importance
-
-  ▼  Step 3 — Automated Data Balancing  (skippable: --no-balance)
-     • Identify minority classes (count < 50% of mean class count)
-     • Generate synthetic samples per class with TVAE
-
-  ▼  Step 4 — Automated Model Training
-     • Re-train all 6 base classifiers on the balanced, reduced dataset
-     • 3-fold cross-validation; rank by mean accuracy
-     • Select top-k (default: 3) for the ensemble
-
-  ▼  Step 5 — Hyperparameter Optimisation  (skippable: --no-tune)
-     • Bayesian Optimisation with Tree-structured Parzen Estimator (BO-TPE)
-     • Per-model search space; 20 function evaluations each
-     • Objective: maximise CV / hold-out accuracy
-
-  ▼  Step 6 — Automated Ensemble (OCSE)  (skippable: --no-ensemble)
-     • Traditional Stacking  — meta-features: hard class predictions
-     • Confidence Stacking   — meta-features: softmax probabilities
-     • Hybrid Stacking (OCSE)— meta-features: predictions + probabilities
-     • Meta-learner: LightGBM
-
-  ▼  Step 7 — Evaluation & Artifact Export
-     • Accuracy, Precision, Recall, F1 (weighted)
-     • Per-class classification report (saved to reports/)
-     • Confusion matrix heatmap (saved to plots/)
-     • Cross-model comparison chart + CSV (saved to plots/ and reports/)
-     • All models serialised to output/models/ as .pkl via joblib
-```
-
-### Module mapping
-
-| Step | Module | Class |
-|------|--------|-------|
-| Load | `data_loader.py` | `DataLoader` |
-| Preprocess | `preprocessor.py` | `DataPreprocessor` |
-| Feature selection | `feature_selector.py` | `FeatureSelector` |
-| Data balancing | `data_balancer.py` | `DataBalancer` |
-| Training | `model_trainer.py` | `ModelTrainer` |
-| Hyperparameter optimisation | `hyperopt_tuner.py` | `HyperparameterTuner` |
-| Model ranking | `ensemble.py` | `ModelSelector` |
-| Ensemble | `ensemble.py` | `EnsembleBuilder` |
-| Evaluation | `evaluator.py` | `ModelEvaluator` |
+Steps 3, 5, and 6 can be individually skipped via CLI flags.
 
 ---
 
 ## Key Techniques
 
-### TVAE Data Balancing
+<details>
+<summary><strong>TVAE — Tabular Variational Auto-Encoder</strong></summary>
 
-A **Tabular Variational Auto-Encoder** (SDV library) learns the joint distribution of all features and synthesises realistic, statistically coherent rows for minority attack classes. Unlike SMOTE, TVAE captures feature correlations and categorical constraints, producing higher-quality synthetic samples that improve recall on rare attack types.
+A VAE trained on tabular data ([SDV](https://docs.sdv.dev/sdv)) that learns the joint feature distribution and generates statistically coherent synthetic rows for minority attack classes. Unlike SMOTE, TVAE preserves feature correlations and handles mixed data types, producing higher-fidelity samples that improve recall on rare attack categories.
 
-### BO-TPE Hyperparameter Optimisation
+</details>
 
-[Hyperopt](https://github.com/hyperopt/hyperopt) implements Bayesian Optimisation guided by a **Tree-structured Parzen Estimator**. Compared to grid or random search, BO-TPE allocates more evaluations to promising regions of the search space. Each model family has its own search space; the objective maximises 3-fold CV accuracy (tree models) or hold-out accuracy (gradient boosters).
+<details>
+<summary><strong>BO-TPE — Bayesian Optimisation with Tree-structured Parzen Estimator</strong></summary>
 
-### OCSE — Optimised Confidence-based Stacking Ensemble
+[Hyperopt](https://github.com/hyperopt/hyperopt) models the objective as a probabilistic surrogate and allocates evaluations toward promising hyperparameter regions. Each classifier has its own search space; the objective maximises 3-fold CV accuracy (tree models) or hold-out accuracy (gradient boosters). Outperforms random and grid search at a fraction of the compute budget.
 
-The hybrid stacking variant feeds both hard predictions **and** class probabilities from the top-k base models into the LightGBM meta-learner. This preserves the calibrated confidence signal that pure hard-voting discards, which is especially beneficial for imbalanced multi-class network traffic data.
+</details>
+
+<details>
+<summary><strong>OCSE — Optimised Confidence-based Stacking Ensemble</strong></summary>
+
+Three stacking variants are built from the top-k base models:
+
+| Variant | Meta-features |
+|---------|--------------|
+| Traditional Stacking | Hard class predictions |
+| Confidence Stacking | Softmax class probabilities |
+| **Hybrid Stacking (OCSE)** | **Predictions + probabilities** |
+
+The OCSE meta-learner (LightGBM) receives both hard predictions and calibrated probabilities, preserving confidence signals that pure hard-voting discards. Particularly effective on imbalanced multi-class traffic data.
+
+</details>
 
 ---
 
@@ -259,7 +208,7 @@ The hybrid stacking variant feeds both hard predictions **and** class probabilit
 | `lgbm` | LightGBM | lightgbm |
 | `cat` | CatBoost | catboost |
 
-All six are trained, cross-validated, and ranked in every run. The top-3 proceed to the ensemble stage.
+All six are trained and cross-validated every run. The top-3 by CV accuracy proceed to the ensemble stage.
 
 ---
 
@@ -268,37 +217,33 @@ All six are trained, cross-validated, and ranked in every run. The top-3 proceed
 ```
 python run.py --dataset {cicids2017,5gnidd} [OPTIONS]
 
-Required:
-  --dataset {cicids2017,5gnidd}   Dataset to run the pipeline on
-
 Pipeline control:
-  --no-balance                    Skip TVAE data balancing
-  --no-tune                       Skip BO-TPE hyperparameter optimisation
-  --no-ensemble                   Skip ensemble construction
+  --no-balance        Skip TVAE data balancing
+  --no-tune           Skip BO-TPE hyperparameter optimisation
+  --no-ensemble       Skip ensemble construction
 
 Tuning:
-  --top-k   INT   Number of top models used in ensemble (default: 3)
-  --max-evals INT  BO-TPE evaluations per model (default: 20)
-  --cv      INT   Cross-validation folds (default: 3)
+  --top-k     INT     Models to include in ensemble      (default: 3)
+  --max-evals INT     BO-TPE evaluations per model       (default: 20)
+  --cv        INT     Cross-validation folds             (default: 3)
 
 Output:
-  --output  PATH  Output directory (default: output)
-  -h, --help      Show help and exit
+  --output    PATH    Artifact output directory          (default: output)
 ```
 
 **Examples:**
 
 ```bash
-# Fast dry-run — skip balancing and tuning
+# Fast dry-run
 python run.py --dataset cicids2017 --no-balance --no-tune
 
-# Full pipeline — all stages
+# Full pipeline on 5G-NIDD
 python run.py --dataset 5gnidd
 
-# Custom tuning budget — 50 evals per model, top-5 ensemble
+# Extended tuning budget, larger ensemble
 python run.py --dataset cicids2017 --top-k 5 --max-evals 50
 
-# Save to a custom directory
+# Custom output path
 python run.py --dataset cicids2017 --no-balance --no-tune --output results/exp1
 ```
 
@@ -306,13 +251,10 @@ python run.py --dataset cicids2017 --no-balance --no-tune --output results/exp1
 
 ## Using `src` as a Library
 
-All classes are importable from the `src` package:
-
 ```python
 from src import (
-    DataLoader, DataPreprocessor, FeatureSelector,
-    DataBalancer, ModelTrainer, HyperparameterTuner,
-    ModelSelector, EnsembleBuilder, ModelEvaluator,
+    DataLoader, DataPreprocessor, FeatureSelector, DataBalancer,
+    ModelTrainer, HyperparameterTuner, ModelSelector, EnsembleBuilder, ModelEvaluator,
 )
 ```
 
@@ -320,27 +262,25 @@ from src import (
 
 ```python
 import joblib
-from src import DataLoader, DataPreprocessor, FeatureSelector, ModelTrainer, ModelEvaluator
+import numpy as np
+from sklearn.model_selection import train_test_split
+from src import DataLoader, DataPreprocessor, FeatureSelector, ModelTrainer, ModelSelector, ModelEvaluator
 
-# 1. Load & preprocess
+# Load & preprocess
 loader = DataLoader("data/raw/CICIDS2017_sample_0.02.csv", label_col="Label")
 df = loader.load()
-
 prep = DataPreprocessor(label_col="Label")
 df = prep.encode_labels(df)
 df = prep.handle_missing(df)
 
-from sklearn.model_selection import train_test_split
-import numpy as np
 features = [c for c in df.columns if c != "Label"]
 X, y = df[features].values, df["Label"].values
 X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, stratify=y)
 
-# 2. Feature selection
+# Feature selection
 trainer = ModelTrainer(cv=3)
 trainer.train_all(X_train, y_train, X_test)
 
-from src import ModelSelector
 selector = ModelSelector(top_k=3)
 selector.fit(trainer.cv_scores)
 
@@ -349,85 +289,74 @@ fs.fit(selector.top_models, trainer.trained_models, features)
 X_train_fs = df[fs.selected_features].values[:len(X_train)]
 X_test_fs  = df[fs.selected_features].values[len(X_train):]
 
-# 3. Evaluate & save
+# Evaluate & save
 evaluator = ModelEvaluator(output_dir="output", prefix="cicids2017")
 for name, model in trainer.trained_models.items():
     res = evaluator.evaluate(model, X_test_fs, y_test, name)
     evaluator.plot_confusion_matrix(y_test, res["predictions"], name)
 
 trainer.save_models(output_dir="output", prefix="cicids2017")
+
+# Load saved model for inference
+model = joblib.load("output/models/cicids2017_xg.pkl")
+predictions = model.predict(X_test_fs)
 ```
 
-See `docs/api_reference.md` for full method signatures.
+See [`docs/api_reference.md`](docs/api_reference.md) for full method signatures.
 
 ---
 
 ## Datasets
 
-| Dataset | Classes | Full size | Sample included | Source |
-|---------|---------|-----------|-----------------|--------|
-| CICIDS2017 | BENIGN, DoS (×4), PortScan, BruteForce, WebAttack, Bot, Infiltration | ~2.8 M rows | 2% (~55 k rows) | [UNB CIC](https://www.unb.ca/cic/datasets/ids-2017.html) |
-| 5G-NIDD | Benign, DDoS (UDP/ICMP/TCP SYN), Reconnaissance, Mirai (×3) | ~1.3 M rows | 4% (~48 k rows) | [IEEE DataPort](https://ieee-dataport.org/documents/5g-nidd-comprehensive-network-intrusion-detection-dataset-generated-over-5g-wireless) |
+| Dataset | Attack Types | Full Size | Included Sample |
+|---------|-------------|-----------|-----------------|
+| [CICIDS2017](https://www.unb.ca/cic/datasets/ids-2017.html) | BENIGN, DoS ×4, PortScan, BruteForce, WebAttack, Bot, Infiltration | ~2.8 M rows | 2% · ~55 k rows |
+| [5G-NIDD](https://ieee-dataport.org/documents/5g-nidd-comprehensive-network-intrusion-detection-dataset-generated-over-5g-wireless) | Benign, DDoS ×3, Reconnaissance, Mirai ×3 | ~1.3 M rows | 4% · ~48 k rows |
 
-Stratified samples are committed to `data/raw/` so the pipeline runs out of the box. To use the full datasets, download from the links above and update the `path` entries in `DATASETS` in `run.py`.
+Stratified samples are committed to `data/raw/` so the pipeline runs out of the box. To use the full datasets, download from the links above and update the `path` entries in the `DATASETS` dict in `run.py`.
 
 ---
 
 ## Output Artifacts
 
-All files are prefixed with the dataset name to avoid collisions when running multiple datasets.
+All files are prefixed with the dataset name to prevent collisions across runs.
 
 ```
 output/
 ├── models/
-│   ├── <dataset>_dt.pkl
-│   ├── <dataset>_rf.pkl
-│   ├── <dataset>_et.pkl
-│   ├── <dataset>_xg.pkl
-│   ├── <dataset>_lgbm.pkl
-│   ├── <dataset>_cat.pkl
+│   ├── <dataset>_{dt,rf,et,xg,lgbm,cat}.pkl
 │   ├── <dataset>_ensemble_traditional.pkl
 │   ├── <dataset>_ensemble_confidence.pkl
 │   └── <dataset>_ensemble_ocse.pkl
-│
 ├── plots/
 │   ├── <dataset>_feature_importance.png
-│   ├── <dataset>_<model>_cm.png          (one per base classifier)
+│   ├── <dataset>_{dt,rf,et,xg,lgbm,cat}_cm.png
 │   └── <dataset>_model_comparison.png
-│
 └── reports/
-    ├── <dataset>_<model>_report.txt       (one per base classifier)
+    ├── <dataset>_{dt,rf,et,xg,lgbm,cat}_report.txt
     └── <dataset>_model_comparison.csv
-```
-
-Models are serialised with `joblib` and can be loaded for inference:
-
-```python
-import joblib
-model = joblib.load("output/models/cicids2017_xg.pkl")
-predictions = model.predict(X_test)
 ```
 
 ---
 
 ## Requirements
 
-| Package | Minimum version | Role |
-|---------|----------------|------|
-| Python | 3.9 | Runtime |
-| numpy | 2.4 | Numerical arrays |
-| pandas | 2.3 | DataFrame operations |
-| scipy | 1.17 | Statistical utilities |
-| scikit-learn | 1.8 | DT, RF, ET, metrics, preprocessing |
-| joblib | 1.5 | Model serialisation (.pkl) |
-| xgboost | 3.2 | XGBoost classifier |
-| lightgbm | 4.6 | LightGBM classifier + meta-learner |
-| catboost | 1.2 | CatBoost classifier |
-| hyperopt | 0.2.7 | BO-TPE hyperparameter search |
-| sdv | 1.36 | TVAE synthetic data generation |
-| matplotlib | 3.10 | Plotting |
-| seaborn | 0.13 | Heatmap visualisations |
-| jupyterlab | 4.5 | Interactive notebooks |
+| Package | Version | Role |
+|---------|---------|------|
+| Python | ≥ 3.9 | Runtime |
+| numpy | ≥ 2.4 | Numerical arrays |
+| pandas | ≥ 2.3 | DataFrames |
+| scipy | ≥ 1.17 | Statistical utilities |
+| scikit-learn | ≥ 1.8 | DT, RF, ET, metrics |
+| joblib | ≥ 1.5 | Model serialisation |
+| xgboost | ≥ 3.2 | XGBoost classifier |
+| lightgbm | ≥ 4.6 | LightGBM + meta-learner |
+| catboost | ≥ 1.2 | CatBoost classifier |
+| hyperopt | ≥ 0.2.7 | BO-TPE optimisation |
+| sdv | ≥ 1.36 | TVAE data generation |
+| matplotlib | ≥ 3.10 | Plotting |
+| seaborn | ≥ 0.13 | Heatmaps |
+| jupyterlab | ≥ 4.5 | Notebooks |
 
 ```bash
 pip install -r requirements.txt
@@ -436,8 +365,6 @@ pip install -r requirements.txt
 ---
 
 ## Citation
-
-If you use this code or build on this work, please cite the original paper:
 
 ```bibtex
 @inproceedings{yang2024autonomouscyber,
@@ -454,5 +381,10 @@ If you use this code or build on this work, please cite the original paper:
 
 ---
 
-**Original authors:** Li Yang ([liyanghart@gmail.com](mailto:liyanghart@gmail.com)) · Abdallah Shami — ANTS Lab (Ontario Tech) / OC2 Lab (Western University)  
-**Reproduction:** For issues with this implementation, open a GitHub issue on this repository.
+<div align="center">
+
+**Original authors:** Li Yang · Abdallah Shami — ANTS Lab (Ontario Tech) / OC2 Lab (Western University)
+
+For issues with this reproduction, please open a [GitHub Issue](https://github.com/wotttoo/Reproduction-AutoML-based-Autonomous-Intrusion-Detection/issues).
+
+</div>
