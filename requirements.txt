@@ -1,27 +1,34 @@
+# ==============================================================
+# AutoML-IDS — Python dependencies
+# Tested on Python 3.13. Minimum Python version: 3.9
+# Install: pip install -r requirements.txt
+# ==============================================================
+
 # Core scientific stack
-numpy>=1.24
-pandas>=2.0
-scipy>=1.10
+numpy>=2.4
+pandas>=2.3
+scipy>=1.17
 
 # Visualisation
-matplotlib>=3.7
-seaborn>=0.12
+matplotlib>=3.10
+seaborn>=0.13
 
-# Machine learning — base
-scikit-learn>=1.3
+# Machine learning — base classifiers & utilities
+scikit-learn>=1.8
+joblib>=1.5          # model serialisation (save/load .pkl)
 
-# Gradient boosting ensembles
-xgboost>=2.0
-lightgbm>=4.0
+# Gradient boosting classifiers
+xgboost>=3.2
+lightgbm>=4.6
 catboost>=1.2
 
-# Hyperparameter optimisation
+# Hyperparameter optimisation (Bayesian BO-TPE)
 hyperopt>=0.2.7
 
-# Synthetic data generation (TVAE)
-sdv>=1.9
+# Synthetic data generation (TVAE data balancing)
+sdv>=1.36
 
-# Jupyter support (for notebooks)
-jupyterlab>=4.0
-ipykernel>=6.0
-ipywidgets>=8.0
+# Jupyter support (interactive notebooks)
+jupyterlab>=4.5
+ipykernel>=7.0
+ipywidgets>=8.1
