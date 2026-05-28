@@ -162,7 +162,7 @@ def run_pipeline(
 
     # ── Step 7: Evaluate base models & ensemble ─────────────────────
     print(f"\n[Step 7/7] Evaluation & ensemble learning...")
-    evaluator = ModelEvaluator(output_dir=output_dir)
+    evaluator = ModelEvaluator(output_dir=output_dir, prefix=dataset)
     results: dict = {}
 
     for name, model in trainer.trained_models.items():
@@ -189,6 +189,12 @@ def run_pipeline(
             results[method] = {"accuracy": acc, "precision": prec, "recall": rec, "f1": f1}
 
     evaluator.compare_models(results)
+
+    print("\n  Saving models...")
+    trainer.save_models(output_dir, prefix=dataset)
+    if ensemble:
+        builder.save_ensembles(output_dir, prefix=dataset)
+
     print(f"\n{sep}\n  Done.  Results saved to '{output_dir}/'\n{sep}\n")
 
 
