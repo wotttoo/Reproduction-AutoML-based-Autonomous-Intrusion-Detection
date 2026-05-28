@@ -1,7 +1,9 @@
 from __future__ import annotations
 
+import os
 import time
 import numpy as np
+import joblib
 from sklearn.tree import DecisionTreeClassifier
 from sklearn.ensemble import RandomForestClassifier, ExtraTreesClassifier
 from sklearn.model_selection import cross_val_score
@@ -96,3 +98,13 @@ class ModelTrainer:
         if cv_score is not None:
             self.cv_scores[name] = np.array([cv_score])
         self._record(name, model, X_train, X_test)
+
+    def save_models(self, output_dir: str = "output", prefix: str = "") -> None:
+        """Save all trained base models to output_dir/models/ as .pkl files."""
+        models_dir = os.path.join(output_dir, "models")
+        os.makedirs(models_dir, exist_ok=True)
+        tag = f"{prefix}_" if prefix else ""
+        for name, model in self.trained_models.items():
+            path = os.path.join(models_dir, f"{tag}{name}.pkl")
+            joblib.dump(model, path)
+            print(f"  Saved {name} → {path}")

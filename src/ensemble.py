@@ -1,5 +1,7 @@
+import os
 import time
 import numpy as np
+import joblib
 import lightgbm as lgb
 from sklearn.metrics import (
     accuracy_score,
@@ -126,3 +128,19 @@ class EnsembleBuilder:
             axis=1,
         )
         return self._train_meta(x_train, x_test, y_train, y_test, "Hybrid Stacking (OCSE)")
+
+    def save_ensembles(self, output_dir: str = "output", prefix: str = "") -> None:
+        """Save all fitted ensemble meta-learners to output_dir/models/ as .pkl files."""
+        models_dir = os.path.join(output_dir, "models")
+        os.makedirs(models_dir, exist_ok=True)
+        tag = f"{prefix}_" if prefix else ""
+        name_map = {
+            "Traditional Stacking":      "ensemble_traditional",
+            "Confidence-based Stacking": "ensemble_confidence",
+            "Hybrid Stacking (OCSE)":    "ensemble_ocse",
+        }
+        for label, model in self.fitted_ensembles.items():
+            fname = name_map.get(label, label.lower().replace(" ", "_"))
+            path = os.path.join(models_dir, f"{tag}{fname}.pkl")
+            joblib.dump(model, path)
+            print(f"  Saved {label} → {path}")
