@@ -20,6 +20,9 @@ env/
 .ipynb_checkpoints/
 *.ipynb_checkpoints
 
+# CatBoost training logs
+catboost_info/
+
 # Data (processed outputs — raw data is committed)
 data/processed/
 
